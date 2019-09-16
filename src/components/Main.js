@@ -2,12 +2,20 @@ import React, { Component } from "react";
 import Header from "./Header.js";
 import Tile from "./Tile.js";
 import config from '../../config';
+import {productlistingService,
+  updateProductservice,
+  productPortalListingService,
+  removeFromListService,
+  loginService
+} from '../services';
 import EditProductTile from "./EditProductTile.js";
 import {
 	PopupboxManager,
 	PopupboxContainer
   } from 'react-popupbox';
-import "react-popupbox/dist/react-popupbox.css"
+import "react-popupbox/dist/react-popupbox.css";
+import { async } from "q";
+
 
 
 let userInfo = sessionStorage.getItem('userInfo');
@@ -18,7 +26,7 @@ class Main extends Component {
         super(props);
         this.state = {
           productList : [],
-          loginDetail : userInfo || [],
+          loginDetail : userInfo,
           showLoginDrawer: false,
           loginAssupplier: false,
           cartItemList: false
@@ -37,46 +45,23 @@ componentDidMount() {
       this.productListing();
  }
 
- removeFromlist = (productId) => {
-    const {loginAssupplier, loginDetail= []} = this.state;
-    const userid= loginDetail.length>0 && loginDetail[0].userid || '';
-    const url = loginAssupplier ? config.api.editProductClt : config.api.editUserClt;
-    const opt= {
-      'productId': productId,
-      'userid': userid
-    }
-
-    fetch(config.serverConnectURL+url,{
-      method: 'put',
-      headers: { "Content-Type": "application/json; charset=UTF-8" },
-      body:  JSON.stringify(opt)        
-    })
-    .then((res) => res.json())
-    .then((res) => {
+ removeFromlist = async(productId) => {
+    const {loginAssupplier} = this.state;
+    const res = await removeFromListService(loginAssupplier,productId);
       this.setState({
         productList:res.result,
         showLoginDrawer: false,
         loginAssupplier: loginAssupplier,
-      });
-    });
- 
+      }); 
  } 
- updateProduct = (updatedProduct={}) => {
-  PopupboxManager.close()
-
-        fetch(config.serverConnectURL+config.api.editProductClt,{
-          method: 'post',
-          headers: { "Content-Type": "application/json; charset=UTF-8" },
-          body: JSON.stringify({'Product':updatedProduct})      
-        })
-        .then((res) => res.json())
-        .then((res) => {
+ updateProduct = async(updatedProduct={}) => {
+    PopupboxManager.close()
+    const res=await updateProductservice(updatedProduct);
           this.setState({
             productList:res.result,
             showLoginDrawer: false,
             loginAssupplier: true
           });          
-        });
  }
 
  editProduct = (product) => {
@@ -85,64 +70,32 @@ componentDidMount() {
    });
     PopupboxManager.open({ content: <EditProductTile updateProduct={this.updateProduct} product={product} />});
  }
- productListing = ( from ) => {
-        const { loginDetail } = this.state;
-        const userid= from && loginDetail.length>0 && loginDetail[0].userid || '';
-        const reqType= userid && userid != '' ? 'post': 'get';   
-
-        fetch(config.serverConnectURL+config.api.product,{
-          method: reqType,
-          headers: { "Content-Type": "application/json; charset=UTF-8" },
-          body: userid !=''? JSON.stringify({'userid':userid}) : undefined         
-        })
-        .then((res) => res.json())
-        .then((res) => {
+ productListing = async( from ) => {
+        const res = await productlistingService(from);
           this.setState({
             productList:res.result,
             showLoginDrawer: false,
             loginAssupplier: false,
             cartItemList: from && from == 'fromCart' ? true : false
           });
-        });
  }
 
- productPortalListing = () => {
-        const { loginDetail } = this.state;
-        const userid= loginDetail.length>0 && loginDetail[0].userid || '';
+ productPortalListing = async() => {
 
-        fetch(config.serverConnectURL+config.api.product,{
-          method: 'put',
-          headers: { "Content-Type": "application/json; charset=UTF-8" },
-          body: userid !=''? JSON.stringify({'userid':userid}) : undefined         
-        })
-        .then((res) => res.json())
-        .then((res) => {
+const res= await productPortalListingService();
           this.setState({
             productList:res.result,
             showLoginDrawer: false,
             loginAssupplier: true,
             cartItemList: false
           });
-        });
+
  }
 
- login = ( username ='', password ='' ) => {
-      let opts={
-        'userid': username,
-        'password': password
-      }
-      
-      fetch(config.serverConnectURL+config.api.login, {
-        method: 'post',
-        headers: { "Content-Type": "application/json; charset=UTF-8" },
-        body: JSON.stringify(opts)
-        
-      })
-      .then((res) => res.json())
-      .then((res) => {
+ login = async( username ='', password ='' ) => {    
+    const res = await loginService(username,password);
         this.setState({loginDetail:res.result});
         sessionStorage.setItem('userInfo',JSON.stringify(res.result));
-      });
 }
 
 logout = () => {
