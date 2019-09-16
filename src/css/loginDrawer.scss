@@ -1,0 +1,32 @@
+.login-drawer {
+    position: absolute;
+    background: $color-primary4;
+    padding: 20px;
+    clear: both;
+    text-align: left;
+    top: 71px;
+    right: -40px;
+    
+    & .img-container {
+        text-align: center;
+        padding: 0 0 20px 0;
+        & .avatar {
+            height: 150px;
+            width: 150px;
+        }
+    }
+    
+    & .container {
+        & label {
+            padding: 10px 0 5px 0;
+        }
+        & input[type=text],
+        & input[type=password] {            
+                display: block;
+                padding: 10px 5px;
+                margin: 10px 0;
+                width: 250px;
+                border-radius: 6px;
+        }        
+    }
+}

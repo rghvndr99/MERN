@@ -1,0 +1,29 @@
+@import './variable.scss';
+
+.product-wrapper-modalbox {
+    max-height: 500px;
+    & .product-field-modalbox {
+        height: 400px;
+        overflow: auto;
+        margin-bottom: 20px;
+    }
+    & h4 {
+        text-align: center;
+        padding-bottom: 20px;
+        border-bottom: 1px solid $color-primary1;
+    }
+
+    & label {
+     display: block;
+     margin: 20px 0 10px 0;
+    }
+    & .text-textarea,
+    & .text-input {
+        display: block;
+        border-radius: 5px;
+        height: 40px;
+        width: 500px;
+        padding: 0 10px;
+        border: 1px solid $color-primary1;
+    }
+}

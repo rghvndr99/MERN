@@ -1,0 +1,72 @@
+@import './variable.scss';
+
+@font-face {
+    font-family: 'Titillium';
+	src: url('fonts/Titillium-Bold.otf') format('otf');
+	font-weight: normal;
+	font-style: normal;
+}
+
+.card {
+  box-shadow: 0 4px 8px 0 $box-shadow1;
+  transition: 0.3s;
+  width: 30%;
+  border-radius: 5px;
+  float: left;
+  margin: 10px 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+
+  & .product-info {
+	display: flex;
+	flex-direction: row;
+  }
+
+   &:hover {
+  	   box-shadow: 0 8px 16px 0 $box-shadow1;
+   }
+
+   & .user-action {
+	   display: flex;
+	   padding: 0 0 10px 0;
+   }
+
+    & img {
+ 	   border-radius: 5px 5px 0 0;
+		padding: 10px;
+		height: 150px;
+    	width: 150px;
+    }
+
+    & .container {
+		padding: 10px 10px 10px 0;
+		color: $color-primary3;
+		max-width: 260px;
+
+  		& .name {
+  			   line-height: 16px;
+     		   padding-bottom: 15px;
+     		   font-family: Titillium;
+        }
+
+        & .product {
+		    padding-bottom: 8px;
+		    font-size: 15px;
+		    letter-spacing: .5px;  
+		}
+		& .supplied-by,
+		& .availability {			
+			display: block;
+			padding-bottom: 5px;
+
+			& .legend {
+				font-weight: bold;
+			}
+		}
+    }
+}
+
+
+
+

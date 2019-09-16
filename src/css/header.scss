@@ -1,0 +1,26 @@
+@import './variable.scss';
+
+.header {
+    padding-right: 40px;
+    color: $color-primary1;
+    background: $color-primary4;
+    border-bottom: 1px solid $color-primary1; 
+    display: flex;
+    align-items: center;
+    justify-content: space-between; 
+
+    & .logo {
+        height:100px;
+        width: auto;
+        cursor: pointer;
+    }
+
+    & .userDrawer {
+        position: relative;
+
+        & .header-user-logo {
+            height: 60px;
+        }
+    }
+
+}

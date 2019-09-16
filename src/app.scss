@@ -1,0 +1,21 @@
+
+@import './css/variable.scss';
+@import './css/common.scss';
+@import './css/tile.scss';
+@import './css/header.scss';
+@import './css/loginDrawer.scss';
+@import './css/userDetailDrawer.scss';
+@import './css/modalbox.scss';
+
+body,p{
+    margin: 0;
+    padding: 0;
+}
+
+.tile-container {
+    padding: 20px 0;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
