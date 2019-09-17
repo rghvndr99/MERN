@@ -23,8 +23,8 @@ class UserDetail extends React.Component {
                         <span className="info">
                                 Items: <span className="legend">{cart.length}</span>
                         </span>
-                        <button className="btn go-to-cart" onClick={() => productList('fromCart')}> Go to Cart</button>
-                        <button className="btn go-to-portal" onClick={productPortalListing}> Product Portal</button>
+                        <button className="btn go-to-cart" onClick={() => productList('fromCart')}> Cart {cart.length} </button>
+                        <button className="btn go-to-portal" onClick={productPortalListing}> Portal</button>
                         <button className="btn logout" onClick={logout}> Logout</button>
                     </div>
                 </div>

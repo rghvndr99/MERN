@@ -15,18 +15,18 @@ class Login extends React.Component {
 		return (
 				<React.Fragment>
 					<div className="login-wrapper" onClick={()=>loginClick()}>
-						{ loginDetail && loginDetail.length>0 &&
+						{ loginDetail && !!loginDetail.length &&
 							<Image dataSrc={userlogo} cssClass="header-user-logo"></Image>
 
 						}
-						{ (!loginDetail || loginDetail.length ==0) && 
+						{ (!loginDetail || !loginDetail.length) && 
 							<button className="btn login-link" >Login</button>
 						}
 					</div>					
-                    {showLoginDrawer &&  (!loginDetail || loginDetail.length == 0) &&
+                    {showLoginDrawer &&  (!loginDetail || !loginDetail.length) &&
                         <LoginDrawer login={login} />
                     }
-                    {showLoginDrawer && loginDetail && loginDetail.length > 0 &&
+                    {showLoginDrawer && loginDetail && !!loginDetail.length &&
 						<UserDetail 
 						   loginDetail={loginDetail}
 						   logout={logout}

@@ -6,12 +6,12 @@ const userid= userInfo.length>0 && userInfo[0].userid || '';
 const headers={ "Content-Type": "application/json; charset=UTF-8" };
 
 const productlistingService = async(from)=>{
-    const reqType= userid && userid != '' ? 'post': 'get';   
+    const reqType= from && userid && userid != '' ? 'post': 'get';   
 
     return await fetch(config.serverConnectURL+config.api.product,{
       method: reqType,
       headers,
-      body: userid !=''? JSON.stringify({'userid':userid}) : undefined         
+      body: from && userid !=''? JSON.stringify({'userid':userid}) : undefined         
     }).then((res) => res.json());
 }
 

@@ -1,7 +1,6 @@
 import React, { Component } from "react";
 import Header from "./Header.js";
 import Tile from "./Tile.js";
-import config from '../../config';
 import {productlistingService,
   updateProductservice,
   productPortalListingService,
@@ -14,7 +13,6 @@ import {
 	PopupboxContainer
   } from 'react-popupbox';
 import "react-popupbox/dist/react-popupbox.css";
-import { async } from "q";
 
 
 
@@ -65,9 +63,6 @@ componentDidMount() {
  }
 
  editProduct = (product) => {
-   this.setState({
-        isProductEdit: true
-   });
     PopupboxManager.open({ content: <EditProductTile updateProduct={this.updateProduct} product={product} />});
  }
  productListing = async( from ) => {
@@ -112,7 +107,7 @@ drawerClick = () => {
 
 
   render() {
-    let { productList = [], loginDetail, showLoginDrawer, loginAssupplier, cartItemList, isProductEdit= false } = this.state;
+    let { productList = [], loginDetail, showLoginDrawer, loginAssupplier, cartItemList } = this.state;
 
     let tileMarkup = productList.map((item, index) => {
         return <Tile 
@@ -137,6 +132,8 @@ drawerClick = () => {
             drawerClick={this.drawerClick}
             showLoginDrawer={showLoginDrawer}
             productPortalListing={this.productPortalListing}
+            loginAssupplier={loginAssupplier}
+            cartItemList={cartItemList}
            />
           <div className="tile-container">
             {tileMarkup}            

@@ -1,16 +1,20 @@
 import config from '../config.js';
-import actions from '../server/actions';
+import {loginService,
+	deleteProduct,
+	filterProducts,
+	findUserById,
+	updateProduct,
+	updateUser,
+	findAssociatedProduct,
+} from './actions';
 
 import express from 'express';
 import mongoDB from 'mongodb';
 import bodyParser from 'body-parser';
+import { async } from 'q';
 
 const mongoClient = mongoDB.MongoClient;
 const app = express();
-
-let databaseInstance;
-
-
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
@@ -30,17 +34,24 @@ mongoClient.connect(config.mongodbUri, {
 	if (err ) {
 		return err;
 	}	
-	databaseInstance = db.db(config.dbName);
+	global.databaseInstance = db.db(config.dbName)
 });
 app.get('/',(req,res,next) => {
 	res.send('server is running');
 	next();	
 })
-app.post('/'+config.api.login,(req,res,next)=> {
+app.post('/'+config.api.login,async (req,res,next)=> {
+
 	const {userid = '', password = ''} = req.body;
-	databaseInstance.collection(config.collections.user).find({
-		$and: [{userid:userid},{password:password}]})
-		.toArray( (err,result) => {
+	const response = await loginService(userid,password);
+	
+	response.toArray( (err,result) => {
+			if(err) {
+				res.send({
+					err
+				});
+				return;
+			}
 			res.send({
 				result
 			});
@@ -48,10 +59,17 @@ app.post('/'+config.api.login,(req,res,next)=> {
 	});
 });
 
-app.get('/'+config.api.product,(req,res,next)=> {
+app.get('/'+config.api.product,async(req,res,next)=> {
 
-	databaseInstance.collection(config.collections.product).find({})
-	.toArray( (err,result) => {
+	const response = await filterProducts();
+
+	response.toArray( (err,result) => {
+		if(err) {
+			res.send({
+				err
+			});
+			return;
+		}
 		res.send({
 			result
 		});
@@ -60,14 +78,21 @@ app.get('/'+config.api.product,(req,res,next)=> {
 	
 });
 
-app.post('/'+config.api.product,(req,res,next)=> {
+app.post('/'+config.api.product,async(req,res,next)=> {
 
 	const {userid = ''} = req.body;
 
-	databaseInstance.collection(config.collections.user).find({userid:userid})
-		.toArray( (err,result) => {
-			databaseInstance.collection(config.collections.product).find({ProductId: {$in: result[0].cart }})
-			.toArray( (err,result) => {				
+
+	const userdata= await findUserById({userid:userid});
+	userdata.toArray( async(err,result) => {			
+			const relatedproduct = await findAssociatedProduct(result[0].cart);
+			relatedproduct.toArray( (err,result) => {	
+				if(err) {
+					res.send({
+						err
+					});
+					return;
+				}			
 				res.send({
 					result
 				});
@@ -77,12 +102,18 @@ app.post('/'+config.api.product,(req,res,next)=> {
 	
 });
 
-app.put('/'+config.api.product,(req,res,next)=> {
+app.put('/'+config.api.product,async(req,res,next)=> {
 	
 	const {userid = ''} = req.body;
 
-		databaseInstance.collection(config.collections.product).find({SuppliedBy: userid})
-			.toArray( (err,result) => {
+	const productList = await filterProducts({SuppliedBy: userid});
+		productList.toArray( (err,result) => {
+			if(err) {
+				res.send({
+					err
+				});
+				return;
+			}
 				res.send({
 					result
 				});
@@ -90,23 +121,26 @@ app.put('/'+config.api.product,(req,res,next)=> {
 			});		
 });
 
-app.put('/'+config.api.editUserClt,(req,res,next)=> {
+app.put('/'+config.api.editUserClt,async(req,res,next)=> {
 	
 	const {userid = '',productId = ''} = req.body;
-
-	databaseInstance.collection(config.collections.user).find({userid:userid})
-		.toArray( (err,result) => {
+	const userData = await findUserById({'userid':userid});
+	
+	userData.toArray( async(err,result) => {
 			result = result[0].cart.filter(item => item !== productId );
-
 			// update use Clt
-			databaseInstance.collection(config.collections.user).updateOne({userid:userid},{$set:{cart:result}})
-			.then((err,result) =>{
-				console.log(result);
-			});
-
+			await updateUser(userid,result);
+			
 			//find related content in product Clt
-			databaseInstance.collection(config.collections.product).find({ProductId: {$in: result }})
-			.toArray( (err,result) => {				
+			const relatedproductInfo = await findAssociatedProduct(result);
+			
+			relatedproductInfo.toArray( (err,result) => {
+				if(err) {
+					res.send({
+						err
+					});
+					return;
+				}
 				res.send({
 					result
 				});
@@ -115,38 +149,47 @@ app.put('/'+config.api.editUserClt,(req,res,next)=> {
 	});	
 });
 
-app.post('/'+config.api.editProductClt,(req,res,next)=> {
+app.post('/'+config.api.editProductClt,async(req,res,next)=> {
 	
 	const {Product = {}} = req.body;
 	delete Product._id;
 			//find related content in product Clt
-			databaseInstance.collection(config.collections.product).updateOne({ProductId:Product.ProductId},
-				{$set:Product}
-				).then((err,result)=>{
-				databaseInstance.collection(config.collections.product).find({SuppliedBy: Product.SuppliedBy})
-					.toArray( (err,result) => {				
+			await updateProduct(Product);
+			const filterBySupplierRes= await filterProducts({SuppliedBy:Product.SuppliedBy});				
+				filterBySupplierRes.toArray( (err,result) => {	
+					if(err) {
+						res.send({
+							err
+						});
+						return;
+					}			
 						res.send({
 							result
 						});
 						next();	
-					});	
-			});
+				});	
 });
 
-app.put('/'+config.api.editProductClt,(req,res,next)=> {
+app.put('/'+config.api.editProductClt,async(req,res,next)=> {
 	
 	const {userid = '',productId = ''} = req.body;
+	const element = {ProductId: productId,SuppliedBy:userid};
 
-	databaseInstance.collection(config.collections.product).remove({ProductId: productId,SuppliedBy:userid},true)
-		.then( (err,result) => {
-			databaseInstance.collection(config.collections.product).find({SuppliedBy:userid})
-			.toArray( (err,result) => {
-				res.send({
-					result
-				});	
-				next();	
-			})	
-	});	
+	await deleteProduct(element);
+	
+	const filterBySupplierRes= await filterProducts({SuppliedBy:userid});
+	filterBySupplierRes.toArray( (err,result) => {
+		if(err) {
+			res.send({
+				err
+			});
+			return;
+		}
+		res.send({
+			result
+		});	
+		next();	
+	});
 });
 
 

@@ -10,13 +10,19 @@ class Header extends React.Component {
 	} 
 
 	render() {
-		const {login,drawerClick, loginDetail,logout,productList,showLoginDrawer,productPortalListing} = this.props;
+		const {login,drawerClick, cartItemList, loginAssupplier, loginDetail,logout,productList,showLoginDrawer,productPortalListing} = this.props;
 		return (
 				<React.Fragment>
 					<header className="header">
 						<div className="hedaer-content" onClick={() => productList()}>
-							<Image dataSrc={logo} cssClass="logo"></Image>
+							<Image dataSrc={logo} cssClass="logo"></Image>							
 						</div>
+						{ loginAssupplier &&
+								<h2>Portal items</h2>
+						}
+						{ cartItemList &&
+								<h2>Cart items </h2>
+						}
 						<div className="userDrawer">
 							<Login
 							 loginClick={drawerClick} 
