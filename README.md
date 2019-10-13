@@ -1,10 +1,11 @@
 # Description
-Its kind of e-commerce application which has user and supplier relationship. On page load, all products will be loaded.  Any logged-in user can go to his cart and remove the product. Suppier has an extra ability to delete and update products.
+It's a kind of e-commerce application that has a user and supplier relationship. On page load, all products will be loaded. Any logged-in user can go to his cart and remove the product. The supplier has the extra ability to delete and update products.
 
 
 # Tech stack
  * MongoDB 
  * Nodejs 
+ * Expressjs
  * Reactjs
  * SASS
  * Webpack
